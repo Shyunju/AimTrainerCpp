@@ -6,6 +6,9 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
+
 // Sets default values
 AMyCharacter::AMyCharacter()
 {
@@ -36,7 +39,15 @@ void AMyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))  //조건식 내부 선언 방식 , 스코프 오염 방지
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		{
+			Subsystem->AddMappingContext(DefaultMappingContext, 0);
+		}
+	}
 }
+
 
 // Called every frame
 void AMyCharacter::Tick(float DeltaTime)
@@ -49,6 +60,17 @@ void AMyCharacter::Tick(float DeltaTime)
 void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+
+
+}
+
+void AMyCharacter::Move(const FInputActionValue& Value)
+{
+}
+
+void AMyCharacter:: Look(const FInputActionValue& Value)
+{
 
 }
 
