@@ -33,6 +33,8 @@ AMyCharacter::AMyCharacter()
 		GunMesh->SetOnlyOwnerSee(true);
 	}
 
+	CombatComp = CreateDefaultSubobject<UCombatComponent>(TEXT("CombatComponent"));
+
 }
 
 // Called when the game starts or when spawned
@@ -59,6 +61,10 @@ void AMyCharacter::BeginPlay()
 			CrosshairWidgetInstance->AddToViewport();
 		}
 	}
+	if (CombatComp)
+	{
+		CombatComp->CurrentWeaponMesh = GunMesh;
+	}
 }
 
 
@@ -77,7 +83,8 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AMyCharacter::Move);
-		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AMyCharacter::Look);
+		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AMyCharacter::Look); //지속성 프레임호출
+		EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Started, this, &AMyCharacter::Fire); //단발성
 
 	}
 }
@@ -114,5 +121,9 @@ void AMyCharacter:: Look(const FInputActionValue& Value)
 		AddControllerYawInput(YawInput);
 		AddControllerPitchInput(PitchInput);
 	}
+}
+void AMyCharacter::Fire(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Log, TEXT("Fire"));
 }
 

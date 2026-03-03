@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
+#include "CombatComponent.h"
 
 #include "MyCharacter.generated.h"
 
@@ -27,6 +28,10 @@ protected:
 
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
+	void Fire(const FInputActionValue& Value);
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
+	UCombatComponent* CombatComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
 	TSubclassOf<class UUserWidget> CrosshairWidgetClass;
@@ -59,6 +64,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	class UInputAction* LookAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	class UInputAction* FireAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input|Mouse")
 	float MouseSensitivity = 0.5f;
