@@ -5,6 +5,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Blueprint/UserWidget.h"
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
@@ -40,7 +41,7 @@ void AMyCharacter::BeginPlay()
 	Super::BeginPlay();
 	
 	FPSCamera->bUsePawnControlRotation = true;
-	ACharacter::bUseControllerRotationYaw = true;
+	ACharacter::bUseControllerRotationYaw = false;
 	ACharacter::bUseControllerRotationPitch = false;
 
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))  //조건식 내부 선언 방식 , 스코프 오염 방지
@@ -48,6 +49,14 @@ void AMyCharacter::BeginPlay()
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 		{
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
+		}
+	}
+	if (CrosshairWidgetClass != nullptr)
+	{
+		CrosshairWidgetInstance = CreateWidget<UUserWidget>(GetWorld(), CrosshairWidgetClass);
+		if (CrosshairWidgetInstance != nullptr)
+		{
+			CrosshairWidgetInstance->AddToViewport();
 		}
 	}
 }
@@ -95,8 +104,15 @@ void AMyCharacter:: Look(const FInputActionValue& Value)
 
 	if (Controller != nullptr)
 	{
-		AddControllerYawInput(LookAxisVector.X);
-		AddControllerPitchInput(LookAxisVector.Y);
+		float YawInput = LookAxisVector.X * MouseSensitivity;
+		float PitchInput = LookAxisVector.Y * MouseSensitivity;
+
+		if (bInvertMouseY)
+		{
+			PitchInput *= -1.0f;
+		}
+		AddControllerYawInput(YawInput);
+		AddControllerPitchInput(PitchInput);
 	}
 }
 
