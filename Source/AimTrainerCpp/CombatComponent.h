@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "CombatComponent.generated.h"
 
+class UNiagaraSystem;
 class USkeletalMeshComponenet;
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class AIMTRAINERCPP_API UCombatComponent : public UActorComponent
@@ -35,5 +36,13 @@ public:
 	UPROPERTY()
 	USkeletalMeshComponent* CurrentWeaponMesh;
 
+	UPROPERTY(EditAnywhere, Category = "Combat|VFX")
+	UNiagaraSystem* MuzzleFalshEffect;
+
+	UPROPERTY(EditAnywhere, Category = "Combat|VFX")
+	float MuzzleScale = 1.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Combat|VFX")
+	UNiagaraSystem* TracerEffect;
 		
 };

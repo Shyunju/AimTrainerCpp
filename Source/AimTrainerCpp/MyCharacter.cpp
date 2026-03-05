@@ -124,6 +124,10 @@ void AMyCharacter:: Look(const FInputActionValue& Value)
 }
 void AMyCharacter::Fire(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Log, TEXT("Fire"));
+	//UE_LOG(LogTemp, Log, TEXT("Fire"));
+	if (CombatComp)
+	{
+		CombatComp->FireTarget();
+	}
 }
 
