@@ -4,6 +4,9 @@
 #include "CombatComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
+#include "MyCharacter.h"
+#include "Camera/CameraComponent.h"
+#include "DrawDebugHelpers.h"
 #include "NiagaraDataInterfaceArrayFunctionLibrary.h"
 
 // Sets default values for this component's properties
@@ -48,8 +51,11 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 }
 void UCombatComponent::FireTarget()
 {
-	AActor* Owner = GetOwner();
-	if (!Owner) return;
+	/*AActor* OwnerCharacter = GetOwner();
+	if (!OwnerCharacter) return;*/
+
+	AMyCharacter* OwnerCharacter = Cast<AMyCharacter>(GetOwner());
+	if (!OwnerCharacter || !CurrentWeaponMesh) return;
 
 	FVector MuzzleLocation = CurrentWeaponMesh->GetSocketLocation(FName("Muzzle"));
 	FRotator MuzzleRotation = CurrentWeaponMesh->GetSocketRotation(FName("Muzzle"));
@@ -72,19 +78,24 @@ void UCombatComponent::FireTarget()
 			MuzzleComp->SetBoolParameter(FName("User.Trigger"), true);
 		}
 	}
+	if (!OwnerCharacter->FPSCamera) return;
 
-	FVector CameraLocation;
+	FVector Start = OwnerCharacter->FPSCamera->GetComponentLocation();
+	FVector Direction = OwnerCharacter->FPSCamera->GetForwardVector();
+	FVector End = Start + (Direction * TraceRange);
+
+	/*FVector CameraLocation;
 	FRotator CameraRotation;
-	Owner->GetActorEyesViewPoint(CameraLocation, CameraRotation);
+	OwnerCharacter->GetActorEyesViewPoint(CameraLocation, CameraRotation);
 
 	FVector Start = CameraLocation;
-	FVector End = Start + (CameraRotation.Vector() * TraceRange);
+	FVector End = Start + (CameraRotation.Vector() * TraceRange);*/
 
 
 	//충돌검사
 	FHitResult HitResult;
 	FCollisionQueryParams Params;
-	Params.AddIgnoredActor(Owner);
+	Params.AddIgnoredActor(OwnerCharacter);
 	Params.bReturnPhysicalMaterial = true;
 
 	bool bHit = GetWorld()->LineTraceSingleByChannel(
@@ -118,8 +129,84 @@ void UCombatComponent::FireTarget()
 
 	if (bHit)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Hit Target : %s"), *HitResult.GetActor()->GetName());
-		DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 10.f, 12, FColor::Red, false, 2.0f);
+		/*UE_LOG(LogTemp, Warning, TEXT("Hit Target : %s"), *HitResult.GetActor()->GetName());
+		DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 10.f, 12, FColor::Red, false, 2.0f);*/
+
+		FVector ImpactPoint = HitResult.ImpactPoint;
+		FVector ImpactNormal = HitResult.ImpactNormal;
+
+		if (ImpactConcreteEffect)
+		{
+			UNiagaraComponent* ImpactComp = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+				GetWorld(),
+				ImpactConcreteEffect,
+				ImpactPoint,
+				ImpactNormal.Rotation()
+			);
+
+			if (ImpactComp)
+			{
+				TArray<FVector> ImpactPositions;
+				ImpactPositions.Add(ImpactPoint);
+				TArray<FVector> ImpactNormals;
+				ImpactNormals.Add(ImpactNormal);
+				UNiagaraDataInterfaceArrayFunctionLibrary::SetNiagaraArrayPosition(
+					ImpactComp,
+					FName("User.ImpactPositions"),
+					ImpactPositions
+				);
+				UNiagaraDataInterfaceArrayFunctionLibrary::SetNiagaraArrayPosition(
+					ImpactComp,
+					FName("User.ImpactNormals"),
+					ImpactNormals
+				);
+			}
+
+		}
+		if (ImpactDecalEffect)
+		{
+
+			UNiagaraComponent* DecalComp = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+				GetWorld(),
+				ImpactDecalEffect,
+				ImpactPoint,
+				ImpactNormal.Rotation()
+			);
+
+			if (DecalComp)
+			{
+				TArray<FVector> ImpactPositions;
+				ImpactPositions.Add(ImpactPoint);
+				TArray<FVector> ImpactNormals;
+				ImpactNormals.Add(ImpactNormal);
+
+				TArray<int32> ImpactSurfaces;
+				ImpactSurfaces.Add(2); //1character , 2 concrete
+
+				UNiagaraDataInterfaceArrayFunctionLibrary::SetNiagaraArrayPosition(
+					DecalComp,
+					FName("User.ImpactPositions"),
+					ImpactPositions
+				);
+				UNiagaraDataInterfaceArrayFunctionLibrary::SetNiagaraArrayVector(
+					DecalComp,
+					FName("User.ImpactNormals"),
+					ImpactNormals
+				);
+				UNiagaraDataInterfaceArrayFunctionLibrary::SetNiagaraArrayInt32(
+					DecalComp,
+					FName("User.ImpactSurfaces"),
+					ImpactSurfaces
+				);
+
+				DecalComp->SetVariableQuat(FName("User.Orientation"), (-ImpactNormal).ToOrientationQuat());
+				DecalComp->SetVectorParameter(FName("User.MusslePosition"), MuzzleLocation);
+				DecalComp->SetIntParameter(FName("User.NumberofHits"), 1);
+				DecalComp->SetIntParameter(FName("User.SurfaceType"), 1);
+				DecalComp->SetVectorParameter(FName("User.StartOffset"), FVector(0.0f, 0.0f, 2.0f));
+				DecalComp->SetBoolParameter(FName("User.Trigger"), true);
+			}
+		}
 	}
 
 	//DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 2.0f, 0, 1.0f);

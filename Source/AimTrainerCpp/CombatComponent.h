@@ -44,5 +44,11 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Combat|VFX")
 	UNiagaraSystem* TracerEffect;
+
+	UPROPERTY(EditAnywhere, Category = "Combat|VFX")
+	UNiagaraSystem* ImpactConcreteEffect;
+
+	UPROPERTY(EditAnywhere, Category = "Combat|VFX")
+	UNiagaraSystem* ImpactDecalEffect;
 		
 };
