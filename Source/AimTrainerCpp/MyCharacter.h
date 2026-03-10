@@ -74,4 +74,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input|Mouse")
 	bool bInvertMouseY = true;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
+	UAnimMontage* ArmsFireMontage;
+
+	void PlayFireAnimation();
+
 };

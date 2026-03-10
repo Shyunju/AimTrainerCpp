@@ -6,6 +6,8 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Blueprint/UserWidget.h"
+#include "Animation/AnimInstance.h"
+#include "Animation/AnimMontage.h"
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
@@ -72,7 +74,27 @@ void AMyCharacter::BeginPlay()
 void AMyCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	if (Mesh1P)
+	{
+		if (UAnimInstance* AnimInstance = Mesh1P->GetAnimInstance())
+		{
+			FVector Velocity = GetVelocity();
+			Velocity.Z = 0;
+			float SpeedValue = Velocity.Size();
 
+			FProperty* SpeedProp = AnimInstance->GetClass()->FindPropertyByName(FName("Speed"));
+
+			if (SpeedProp)
+			{
+				if (FDoubleProperty* DoubleProp = CastField<FDoubleProperty>(SpeedProp))
+				{
+					DoubleProp->SetPropertyValue_InContainer(AnimInstance, (double)SpeedValue);
+				}
+			}
+		}
+
+
+	}
 }
 
 // Called to bind functionality to input
@@ -130,4 +152,10 @@ void AMyCharacter::Fire(const FInputActionValue& Value)
 		CombatComp->FireTarget();
 	}
 }
+void AMyCharacter::PlayFireAnimation()
+{
+
+}
+
+
 
