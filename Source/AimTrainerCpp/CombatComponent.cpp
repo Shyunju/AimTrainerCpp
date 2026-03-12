@@ -57,6 +57,8 @@ void UCombatComponent::FireTarget()
 	AMyCharacter* OwnerCharacter = Cast<AMyCharacter>(GetOwner());
 	if (!OwnerCharacter || !CurrentWeaponMesh) return;
 
+	OwnerCharacter->PlayFireAnimation();
+
 	FVector MuzzleLocation = CurrentWeaponMesh->GetSocketLocation(FName("Muzzle"));
 	FRotator MuzzleRotation = CurrentWeaponMesh->GetSocketRotation(FName("Muzzle"));
 

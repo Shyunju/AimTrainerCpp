@@ -154,7 +154,20 @@ void AMyCharacter::Fire(const FInputActionValue& Value)
 }
 void AMyCharacter::PlayFireAnimation()
 {
-
+	if (ArmsFireMontage && Mesh1P)
+	{
+		if (UAnimInstance* AnimInstance = Mesh1P->GetAnimInstance())
+		{
+			AnimInstance->Montage_Play(ArmsFireMontage);
+		}
+	}
+	if (GunFireMontage && GunMesh)
+	{
+		if (UAnimInstance* AnimInstance = GunMesh->GetAnimInstance())
+		{
+			AnimInstance->Montage_Play(GunFireMontage);
+		}
+	}
 }
 
 
