@@ -25,6 +25,9 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	void ProcessHit(UPhysicalMaterial* PhysMat);
+	virtual void Die(bool bWasKilled);
+	void StartWarning();
+	void OnLifeSpanExpired();
 
 public:	
 	// Called every frame
@@ -39,8 +42,30 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
 	UHitZoneConfig* HitZoneConfig;
 
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Stats")
+	float Health = 100.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Stats")
+	float MaxLifeTime = 5.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Stats")
+	float WarningTime = 2.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Visual")
+	FLinearColor WarningColor = FLinearColor::Red;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Visual")
+	float RagdollLifespan = 3.0f;
+
 	void OnHit(UPhysicalMaterial* PhysMat);
 
-
+private:
+	UPROPERTY()
+	UMaterialInstanceDynamic* DynamicMaterial;
+	FTimerHandle LifeSpanTimerHandle;
+	FTimerHandle WarningTimerHandle;
+	FTimerHandle DestroyTimerHandle;
 
 };

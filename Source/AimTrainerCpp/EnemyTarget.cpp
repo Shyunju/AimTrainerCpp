@@ -29,6 +29,15 @@ void AEnemyTarget::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	if (Mesh && Mesh->GetNumMaterials() > 0)
+	{
+		DynamicMaterial = Mesh->CreateAndSetMaterialInstanceDynamic(0);
+	}
+
+	float WarningStartTime = FMath::Max(0.1f, MaxLifeTime - WarningTime);
+	GetWorldTimerManager().SetTimer(WarningTimerHandle, this, &AEnemyTarget::StartWarning, WarningStartTime, false);
+
+	GetWorldTimerManager().SetTimer(LifeSpanTimerHandle, this, &AEnemyTarget::OnLifeSpanExpired, MaxLifeTime, false);
 }
 
 // Called every frame
@@ -81,5 +90,37 @@ void AEnemyTarget::ProcessHit(UPhysicalMaterial* PhysMat)
 		FString DebugMessage = FString::Printf(TEXT("Hit: %s (PhysMat : %s)"), *ZoneString, *MatName);
 		GEngine->AddOnScreenDebugMessage(-1, 3.0f, MessageColor, DebugMessage);
 	}
+}
+
+void AEnemyTarget::StartWarning()
+{
+	if (DynamicMaterial)
+	{
+		DynamicMaterial->SetVectorParameterValue(TEXT("Paint Tint"), WarningColor);
+
+	}
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Orange, TEXT("target warning: hurry up"));
+	}
+}
+
+void AEnemyTarget::Die(bool bWasKilled)
+{
+	GetWorldTimerManager().ClearAllTimersForObject(this);
+	if (!bWasKilled)
+	{
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Silver, TEXT("target edpired - fail"));
+		}
+		Destroy();
+	}
+
+}
+
+void AEnemyTarget::OnLifeSpanExpired()
+{
+	Die(false);
 }
 
