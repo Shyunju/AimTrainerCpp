@@ -5,6 +5,7 @@
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
 #include "MyCharacter.h"
+#include "EnemyTarget.h"
 #include "Camera/CameraComponent.h"
 #include "DrawDebugHelpers.h"
 #include "NiagaraDataInterfaceArrayFunctionLibrary.h"
@@ -212,5 +213,10 @@ void UCombatComponent::FireTarget()
 	}
 
 	//DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 2.0f, 0, 1.0f);
+
+	if (AEnemyTarget* HitEnemy = Cast<AEnemyTarget>(HitResult.GetActor()))
+	{
+		HitEnemy->OnHit(HitResult.PhysMaterial.Get());
+	}
 }
 
