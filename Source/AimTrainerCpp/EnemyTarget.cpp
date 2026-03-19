@@ -61,22 +61,25 @@ void AEnemyTarget::ProcessHit(UPhysicalMaterial* PhysMat)
 		return;
 	}
 	EHitZone HitZone = HitZoneConfig->GetHitZone(PhysMat);
-
+	float DamageAmount = 0.0f;
 	FString ZoneString = "";
 	FColor MessageColor = FColor::White;
-	FString MatName = PhysMat ? PhysMat->GetName() : TEXT("None");
+	//FString MatName = PhysMat ? PhysMat->GetName() : TEXT("None");
 
 	switch (HitZone)
 	{
 	case EHitZone::Head:
+		DamageAmount = 100.0f;
 		ZoneString = "head";
 		MessageColor = FColor::Red;
 		break;
 	case EHitZone::Body:
+		DamageAmount = 50.0f;
 		ZoneString = "body";
 		MessageColor = FColor::Green;
 		break;
 	case EHitZone::Limbs:
+		DamageAmount = 35.0f;
 		ZoneString = "limbs";
 		MessageColor = FColor::Yellow;
 		break;
@@ -85,11 +88,17 @@ void AEnemyTarget::ProcessHit(UPhysicalMaterial* PhysMat)
 		MessageColor = FColor::White;
 		break;
 	}
+	Health -= DamageAmount;
 	if (GEngine)
 	{
-		FString DebugMessage = FString::Printf(TEXT("Hit: %s (PhysMat : %s)"), *ZoneString, *MatName);
+		FString DebugMessage = FString::Printf(TEXT("Hit: %s | damage : %.f | health: %.f"), *ZoneString, DamageAmount, FMath::Max(0.0f, Health));
 		GEngine->AddOnScreenDebugMessage(-1, 3.0f, MessageColor, DebugMessage);
 	}
+	if (Health <= 0)
+	{
+		Die(true);
+	}
+
 }
 
 void AEnemyTarget::StartWarning()
@@ -108,13 +117,42 @@ void AEnemyTarget::StartWarning()
 void AEnemyTarget::Die(bool bWasKilled)
 {
 	GetWorldTimerManager().ClearAllTimersForObject(this);
-	if (!bWasKilled)
+	if (bWasKilled)
+	{
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Cyan, TEXT("target killed - ragdoll"));
+		}
+		if (Mesh)
+		{
+			Mesh->SetSimulatePhysics(true);
+			Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+			Mesh->SetCollisionProfileName(TEXT("Ragdoll"));
+
+			if (CapsuleComponent)
+			{
+				CapsuleComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			}
+
+			FTimerDelegate DestroyDelegate;
+			DestroyDelegate.BindLambda([this]() {
+				Destroy();
+			});
+			GetWorldTimerManager().SetTimer(DestroyTimerHandle, DestroyDelegate, RagdollLifespan, false);
+		}
+		else
+		{
+			Destroy();
+		}
+	}
+	else
 	{
 		if (GEngine)
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Silver, TEXT("target edpired - fail"));
 		}
 		Destroy();
+
 	}
 
 }
