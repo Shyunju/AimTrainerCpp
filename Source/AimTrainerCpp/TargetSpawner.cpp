@@ -25,6 +25,7 @@ ATargetSpawner::ATargetSpawner()
 void ATargetSpawner::BeginPlay()
 {
 	Super::BeginPlay();
+	ScheduleNextSpawn();
 	
 }
 
@@ -98,6 +99,7 @@ void ATargetSpawner::SpawnTarget()
 		if (NewTarget)
 		{
 			ActiveTargets.Add(NewTarget);
+			NewTarget->OnDestroyed.AddDynamic(this, &ATargetSpawner::OnTargetDestroyed);
 
 		}
 		
@@ -108,11 +110,16 @@ void ATargetSpawner::SpawnTarget()
 
 void ATargetSpawner::ScheduleNextSpawn()
 {
-
+	float SpawnDelay = FMath::RandRange(MinSpawnDelay, MaxSpawnDelay);
+	GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &ATargetSpawner::SpawnTarget, SpawnDelay, false);
 }
 void ATargetSpawner::OnTargetDestroyed(AActor* DestroyedActor)
 {
-
+	AEnemyTarget* Target = Cast<AEnemyTarget>(DestroyedActor);
+	if (Target)
+	{
+		ActiveTargets.Remove(Target);
+	}
 }
 
 
