@@ -27,7 +27,7 @@ void UCombatComponent::BeginPlay()
 	Super::BeginPlay();
 
 	// ...
-	
+	CurrentAmmo = MaxAmmo;
 }
 
 
@@ -50,13 +50,28 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 	}
 }
+bool UCombatComponent::CanFire() const
+{
+	return !bIsReloading && CurrentAmmo > 0;
+}
 void UCombatComponent::FireTarget()
 {
 	/*AActor* OwnerCharacter = GetOwner();
 	if (!OwnerCharacter) return;*/
 
+	if (!CanFire())
+	{
+		if (CurrentAmmo <= 0 && !bIsReloading)
+		{
+			if (GEngine)
+				GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("Empty ammo - reload(R)"));
+		}
+		return;
+	}
+
 	AMyCharacter* OwnerCharacter = Cast<AMyCharacter>(GetOwner());
 	if (!OwnerCharacter || !CurrentWeaponMesh) return;
+	CurrentAmmo--;
 
 	OwnerCharacter->PlayFireAnimation();
 
@@ -218,5 +233,36 @@ void UCombatComponent::FireTarget()
 	{
 		HitEnemy->OnHit(HitResult.PhysMaterial.Get());
 	}
+}
+
+void UCombatComponent::Reload()
+{
+	if (bIsReloading || CurrentAmmo >= MaxAmmo)	return;
+
+	AMyCharacter* OwnerCharacter = Cast<AMyCharacter>(GetOwner());
+	if (!OwnerCharacter) return;
+
+	float ActualReloadTime = ReloadTime;
+
+	if (OwnerCharacter->ArmsFireMontage)
+	{
+		int32 SectionIndex = OwnerCharacter->ArmsFireMontage->GetSectionIndex(OwnerCharacter->ReloadSectionName);
+		if (SectionIndex != INDEX_NONE)
+		{
+			ActualReloadTime = OwnerCharacter->ArmsFireMontage->GetSectionLength(SectionIndex);
+		}
+	}
+
+	bIsReloading = true;
+	OwnerCharacter->PlayReloadAnimation();
+	GetWorld()->GetTimerManager().SetTimer(ReloadTiemerHandle, this, &UCombatComponent::FinishReloading, ActualReloadTime, false);
+
+}
+
+void UCombatComponent::FinishReloading()
+{
+	bIsReloading = false;
+	CurrentAmmo = MaxAmmo;
+	if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, TEXT("Reload complete"));
 }
 

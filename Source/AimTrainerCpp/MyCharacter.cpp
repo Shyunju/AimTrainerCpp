@@ -107,6 +107,7 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AMyCharacter::Move);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AMyCharacter::Look); //지속성 프레임호출
 		EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Started, this, &AMyCharacter::Fire); //단발성
+		EnhancedInputComponent->BindAction(ReloadAction, ETriggerEvent::Started, this, &AMyCharacter::Reload);
 
 	}
 }
@@ -152,6 +153,13 @@ void AMyCharacter::Fire(const FInputActionValue& Value)
 		CombatComp->FireTarget();
 	}
 }
+void AMyCharacter::Reload(const FInputActionValue& Value)
+{
+	if (CombatComp)
+	{
+		CombatComp->Reload();
+	}
+}
 void AMyCharacter::PlayFireAnimation()
 {
 	if (ArmsFireMontage && Mesh1P)
@@ -159,6 +167,7 @@ void AMyCharacter::PlayFireAnimation()
 		if (UAnimInstance* AnimInstance = Mesh1P->GetAnimInstance())
 		{
 			AnimInstance->Montage_Play(ArmsFireMontage);
+			AnimInstance->Montage_JumpToSection(FireSectionName, ArmsFireMontage);
 		}
 	}
 	if (GunFireMontage && GunMesh)
@@ -166,6 +175,27 @@ void AMyCharacter::PlayFireAnimation()
 		if (UAnimInstance* AnimInstance = GunMesh->GetAnimInstance())
 		{
 			AnimInstance->Montage_Play(GunFireMontage);
+			AnimInstance->Montage_JumpToSection(FireSectionName, GunFireMontage);
+		}
+	}
+}
+
+void AMyCharacter::PlayReloadAnimation()
+{
+	if (ArmsFireMontage && Mesh1P)
+	{
+		if (UAnimInstance* AnimInstance = Mesh1P->GetAnimInstance())
+		{
+			AnimInstance->Montage_Play(ArmsFireMontage);
+			AnimInstance->Montage_JumpToSection(ReloadSectionName, ArmsFireMontage);
+		}
+	}
+	if (GunFireMontage && GunMesh)
+	{
+		if (UAnimInstance* AnimInstance = GunMesh->GetAnimInstance())
+		{
+			AnimInstance->Montage_Play(GunFireMontage);
+			AnimInstance->Montage_JumpToSection(ReloadSectionName, GunFireMontage);
 		}
 	}
 }

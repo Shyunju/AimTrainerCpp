@@ -29,6 +29,7 @@ protected:
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void Fire(const FInputActionValue& Value);
+	void Reload(const FInputActionValue& Value);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 	UCombatComponent* CombatComp;
@@ -68,6 +69,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	class UInputAction* FireAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	class UInputAction* ReloadAction;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input|Mouse")
 	float MouseSensitivity = 0.5f;
 
@@ -79,6 +83,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
 	UAnimMontage* GunFireMontage;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
+	FName FireSectionName = FName("Fire");
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
+	FName ReloadSectionName = FName("Reload");
+
 	void PlayFireAnimation();
+
+	void PlayReloadAnimation();
 
 };

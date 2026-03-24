@@ -27,6 +27,10 @@ public:
 
 	void FireTarget();
 
+	void Reload();
+
+	bool CanFire() const;
+
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	float TraceRange = 5000.0f;
 
@@ -50,5 +54,25 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Combat|VFX")
 	UNiagaraSystem* ImpactDecalEffect;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Ammo")
+	int32 MaxAmmo = 30;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat|Ammo")
+	int32 CurrentAmmo;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Ammo")
+	float ReloadTime = 1.5f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat|Stats")
+	int32 TotalShotsFired = 0;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat|Ammo")
+	bool bIsReloading = false;
+
+private :
+	void FinishReloading();
+
+	FTimerHandle ReloadTiemerHandle;
 		
 };
