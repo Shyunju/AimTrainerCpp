@@ -8,6 +8,8 @@
 #include "EnemyTarget.h"
 #include "Camera/CameraComponent.h"
 #include "DrawDebugHelpers.h"
+#include "StartButton.h"
+#include "AimTranerGameMode.h"
 #include "NiagaraDataInterfaceArrayFunctionLibrary.h"
 
 // Sets default values for this component's properties
@@ -152,6 +154,11 @@ void UCombatComponent::FireTarget()
 
 		FVector ImpactPoint = HitResult.ImpactPoint;
 		FVector ImpactNormal = HitResult.ImpactNormal;
+
+		if (AStartButton* StartButton = Cast<AStartButton>(HitResult.GetActor()))
+		{
+			StartButton->OnHit();
+		}
 
 		if (ImpactConcreteEffect)
 		{

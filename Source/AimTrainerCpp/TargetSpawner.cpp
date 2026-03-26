@@ -4,6 +4,8 @@
 #include "Components/CapsuleComponent.h"
 #include "EnemyTarget.h"
 #include "TargetSpawner.h"
+#include "AimTranerGameMode.h"
+#include "Kismet/GameplayStatics.h"
 #include "TimerManager.h"
 
 
@@ -81,6 +83,12 @@ FVector ATargetSpawner::GetRandomPointInBox() const
 }
 void ATargetSpawner::SpawnTarget()
 {
+	AAimTranerGameMode* GameMode = Cast<AAimTranerGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (!GameMode || !GameMode->bIsGameStrated)
+	{
+		ScheduleNextSpawn();
+		return;
+	}
 	if (ActiveTargets.Num() >= MaxActiveTargets)
 	{
 		ScheduleNextSpawn();
