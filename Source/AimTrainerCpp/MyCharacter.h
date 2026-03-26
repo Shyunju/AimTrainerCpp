@@ -93,4 +93,7 @@ public:
 
 	void PlayReloadAnimation();
 
+	UFUNCTION(BlueprintPure, Category = "Combat|UI")
+	FText GetAmmoText() const;
+
 };

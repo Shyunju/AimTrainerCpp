@@ -200,5 +200,16 @@ void AMyCharacter::PlayReloadAnimation()
 	}
 }
 
+FText AMyCharacter::GetAmmoText() const
+{
+	if (CombatComp)
+	{
+		FString AmmoString = FString::Printf(TEXT("%d / %d"), CombatComp->CurrentAmmo, CombatComp->MaxAmmo);
+		return FText::FromString(AmmoString);
+	}
+
+	return FText::FromString(TEXT("0 / 0"));
+}
+
 
 
