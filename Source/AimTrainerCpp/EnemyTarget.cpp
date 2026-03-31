@@ -3,6 +3,8 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "HitZoneConfig.h"
+#include "Kismet/GameplayStatics.h"
+#include "AimTranerGameMode.h"
 #include "EnemyTarget.h"
 
 // Sets default values
@@ -61,6 +63,12 @@ void AEnemyTarget::ProcessHit(UPhysicalMaterial* PhysMat)
 		return;
 	}
 	EHitZone HitZone = HitZoneConfig->GetHitZone(PhysMat);
+
+	AAimTranerGameMode* GameMode = Cast<AAimTranerGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (GameMode)
+	{
+		GameMode->AddHitScore(HitZone);
+	}
 	float DamageAmount = 0.0f;
 	FString ZoneString = "";
 	FColor MessageColor = FColor::White;
@@ -117,6 +125,12 @@ void AEnemyTarget::StartWarning()
 void AEnemyTarget::Die(bool bWasKilled)
 {
 	GetWorldTimerManager().ClearAllTimersForObject(this);
+	AAimTranerGameMode* GameMode = Cast<AAimTranerGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (GameMode)
+	{
+		if (bWasKilled) GameMode->OnTargetKilled();
+		else GameMode->OnTargetExpired();
+	}
 	if (bWasKilled)
 	{
 		if (GEngine)

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
+#include "AimTrainerTypes.h"
 #include "AimTranerGameMode.generated.h"
 
 /**
@@ -27,15 +28,48 @@ public:
 
 	void EndGame();
 
+	void AddHitScore(EHitZone HitZone);
+
+	void OnTargetKilled();
+	void OnTargetExpired();
+	void AddShotCount();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "GameFlow")
+	void OnGameOver();
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game|Config")
 	float GameTimeLimit = 60.0f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Game|Stats")
 	float TimeRemaining;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game|Config")
+	float ShotPenaltyValue = 2.0f;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Game|Stats")
 	bool bIsGameStrated = false;
 
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Game|Stats")
+	int32 TotalScore = 0;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Game|Stats")
+	int32 CurrentCombo = 0;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Game|Stats")
+	int32 TotalShotsFired = 0;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Game|Stats")
+	int32 HeadHits = 0;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Game|Stats")
+	int32 BodyHits = 0;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Game|Stats")
+	int32 LimbHits = 0;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Game|Stats")
+	float FinalSocre = 0.0f;
 private:
 	void UpdateTimer();
 

@@ -10,6 +10,8 @@
 #include "DrawDebugHelpers.h"
 #include "StartButton.h"
 #include "AimTranerGameMode.h"
+//#include "TimerManager.h"
+#include "Kismet/GameplayStatics.h"
 #include "NiagaraDataInterfaceArrayFunctionLibrary.h"
 
 // Sets default values for this component's properties
@@ -74,6 +76,12 @@ void UCombatComponent::FireTarget()
 	AMyCharacter* OwnerCharacter = Cast<AMyCharacter>(GetOwner());
 	if (!OwnerCharacter || !CurrentWeaponMesh) return;
 	CurrentAmmo--;
+
+	AAimTranerGameMode* GameMode = Cast<AAimTranerGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (GameMode)
+	{
+		GameMode->AddShotCount();
+	}
 
 	OwnerCharacter->PlayFireAnimation();
 
@@ -240,6 +248,7 @@ void UCombatComponent::FireTarget()
 	{
 		HitEnemy->OnHit(HitResult.PhysMaterial.Get());
 	}
+	
 }
 
 void UCombatComponent::Reload()
