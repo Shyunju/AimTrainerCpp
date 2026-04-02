@@ -34,8 +34,17 @@ public:
 	void OnTargetExpired();
 	void AddShotCount();
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "GameFlow")
+	/*UFUNCTION(BlueprintImplementableEvent, Category = "GameFlow")
+	void OnGameOver();*/
+	UFUNCTION(BlueprintNativeEvent, Category = "GameFlow")
 	void OnGameOver();
+	virtual void OnGameOver_Implementation();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game|UI")
+	TSubclassOf<UUserWidget> ResultWidgetClass;
+
+	UPROPERTY()
+	UUserWidget* ResultWidgetInstance;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game|Config")
 	float GameTimeLimit = 60.0f;

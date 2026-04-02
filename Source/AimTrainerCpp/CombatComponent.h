@@ -8,6 +8,8 @@
 
 class UNiagaraSystem;
 class USkeletalMeshComponenet;
+class USoundBase;
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class AIMTRAINERCPP_API UCombatComponent : public UActorComponent
 {
@@ -69,6 +71,12 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat|Ammo")
 	bool bIsReloading = false;
+
+	UPROPERTY(EditAnywhere, Category = "Combat|Sound")
+	USoundBase* FireSound;
+
+	UPROPERTY(EditAnywhere, Category = "Combat|Sound")
+	USoundBase* EmptySound;
 
 private :
 	void FinishReloading();

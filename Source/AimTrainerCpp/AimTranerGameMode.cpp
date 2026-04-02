@@ -2,6 +2,7 @@
 
 #include "TimerManager.h"
 #include "StartButton.h"
+#include "Blueprint/UserWidget.h"
 #include "AimTranerGameMode.h"
 
 AAimTranerGameMode::AAimTranerGameMode()
@@ -124,5 +125,21 @@ void AAimTranerGameMode::EndGame()
 	if (GEngine)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Orange, TEXT("Game over"));
+	}
+}
+
+void AAimTranerGameMode::OnGameOver_Implementation()
+{
+	if (APlayerController* Pc = GetWorld()->GetFirstPlayerController())
+	{
+		if (ResultWidgetClass)
+		{
+			ResultWidgetInstance = CreateWidget<UUserWidget>(Pc, ResultWidgetClass);
+			if (ResultWidgetInstance)
+			{
+				ResultWidgetInstance->AddToViewport();
+			}
+		}
+
 	}
 }

@@ -10,7 +10,6 @@
 #include "DrawDebugHelpers.h"
 #include "StartButton.h"
 #include "AimTranerGameMode.h"
-//#include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraDataInterfaceArrayFunctionLibrary.h"
 
@@ -67,6 +66,7 @@ void UCombatComponent::FireTarget()
 	{
 		if (CurrentAmmo <= 0 && !bIsReloading)
 		{
+			UGameplayStatics::PlaySoundAtLocation(this, EmptySound, GetOwner()->GetActorLocation());
 			if (GEngine)
 				GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("Empty ammo - reload(R)"));
 		}
@@ -75,6 +75,13 @@ void UCombatComponent::FireTarget()
 
 	AMyCharacter* OwnerCharacter = Cast<AMyCharacter>(GetOwner());
 	if (!OwnerCharacter || !CurrentWeaponMesh) return;
+
+	if (FireSound)
+	{
+		FVector MuzzleLocation = CurrentWeaponMesh->GetSocketLocation(FName("Muzzle"));
+		float RandomPitch = FMath::RandRange(0.95f, 1.05f);
+		UGameplayStatics::PlaySoundAtLocation(this, FireSound, MuzzleLocation, 1.0f, RandomPitch);
+	}
 	CurrentAmmo--;
 
 	AAimTranerGameMode* GameMode = Cast<AAimTranerGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
